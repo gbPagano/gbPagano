@@ -13,6 +13,6 @@ Hi there 👋,  I'm Guilherme B. Pagano, I'm 19 years old and I write codes :)
 
 - ⚡ Electrical Engineering Student at Universidade Federal de Uberlândia - UFU.
 
-- 💼 Machile Learning Engineer Intern at [IHM Stefanini](https://www.ihm.com.br/).
+- 💼 Machine Learning Engineer Intern at [IHM Stefanini](https://www.ihm.com.br/).
 
 - ❤️ Python, Machine Learning, Programming and Open Source.
