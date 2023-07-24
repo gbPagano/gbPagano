@@ -8,7 +8,7 @@
 
 ##
   
-Hi there 👋,  I'm Guilherme B. Pagano, I'm 19 years old and I write codes :)
+Hi there 👋,  I'm Guilherme B. Pagano
 
 
 - ⚡ Electrical Engineering Student at Universidade Federal de Uberlândia - UFU.
