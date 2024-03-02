@@ -17,3 +17,9 @@ Hi there 👋,  I'm Guilherme B. Pagano
 - 💼 Data Engineer Intern at [IHM Stefanini](https://www.ihm.com.br/).
 
 - ❤️ Python, Rust, Machine Learning and Open Source.
+
+<div align="right">
+  <p>
+    <sup>i use arch btw</sup>
+  </p>
+</div>
