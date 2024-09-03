@@ -14,7 +14,7 @@ Hi there 👋,  I'm Guilherme B. Pagano
 
 - ⚡ Electrical Engineering Student at Universidade Federal de Uberlândia - UFU.
 
-- 💼 Data Engineer Intern at [IHM Stefanini](https://www.ihm.com.br/).
+- 💼 Data Engineer at [IHM Stefanini](https://www.ihm.com.br/).
 
 - ❤️ Python, Rust, Machine Learning and Open Source.
 
