@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+<script>document.documentElement.lang=navigator.language&&navigator.language.toLowerCase().startsWith('pt')?'pt-BR':'en'</script>
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
@@ -40,7 +41,12 @@ const DEFAULTS = {
 };
 
 function App() {
-  const [lang, setLang] = useState(() => localStorage.getItem('pf_lang') || 'en');
+  const [lang, setLang] = useState(() => {
+    const saved = localStorage.getItem('pf_lang');
+    if (saved) return saved;
+    const bl = (navigator.language || navigator.browserLanguage || '').toLowerCase();
+    return bl.startsWith('pt') ? 'pt' : 'en';
+  });
   const [tw, setTw] = useState(() => {
     try {
       const saved = localStorage.getItem('pf_accent');
@@ -67,7 +73,7 @@ function App() {
     b.setAttribute('data-nav-accent', tw.navAccent || '');
   }, [tw]);
 
-  useEffect(() => { localStorage.setItem('pf_lang', lang); }, [lang]);
+  useEffect(() => { localStorage.setItem('pf_lang', lang); document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en'; }, [lang]);
 
   const setKey = (k, v) => {
     setTw(prev => ({ ...prev, [k]: v }));
