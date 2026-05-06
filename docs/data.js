@@ -230,32 +230,40 @@ window.portfolioData = {
   ],
 
   // Synthetic-but-plausible contribution grid (52 weeks x 7 days) - intensity 0–4
+  // Stored as flat day list ({date,count,level}) so it matches the live API shape.
   contributions: (() => {
-    const g = [];
+    const days = [];
     let seed = 42;
     const rnd = () => {
       seed = (seed * 9301 + 49297) % 233280;
       return seed / 233280;
     };
-    for (let w = 0; w < 52; w++) {
-      const row = [];
-      // simulate more activity in recent weeks
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // start ~52 weeks ago, snapped back to a Sunday
+    const start = new Date(today);
+    start.setDate(start.getDate() - 52 * 7);
+    start.setDate(start.getDate() - start.getDay()); // back to Sunday
+    const totalDays = Math.floor((today - start) / 86400000) + 1;
+    for (let i = 0; i < totalDays; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const w = Math.floor(i / 7);
+      const dow = d.getDay();
       const base = 0.25 + (w / 52) * 0.4;
-      for (let d = 0; d < 7; d++) {
-        const r = rnd();
-        const isWeekend = (d === 0 || d === 6);
-        const penalty = isWeekend ? 0.45 : 1;
-        const v = r * penalty + base * 0.3;
-        let level = 0;
-        if (v > 0.20) level = 1;
-        if (v > 0.38) level = 2;
-        if (v > 0.55) level = 3;
-        if (v > 0.72) level = 4;
-        row.push(level);
-      }
-      g.push(row);
+      const r = rnd();
+      const isWeekend = (dow === 0 || dow === 6);
+      const penalty = isWeekend ? 0.45 : 1;
+      const v = r * penalty + base * 0.3;
+      let level = 0;
+      if (v > 0.20) level = 1;
+      if (v > 0.38) level = 2;
+      if (v > 0.55) level = 3;
+      if (v > 0.72) level = 4;
+      const count = level === 0 ? 0 : level * 2 + Math.floor(r * 4);
+      days.push({ date: d.toISOString().slice(0, 10), count, level });
     }
-    return g;
+    return days;
   })(),
 
   stats: {

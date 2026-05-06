@@ -312,23 +312,45 @@ function Skills({ lang, data }) {
 
 // ---- GitHub stats + contribution heatmap (live from public API, fallback to data.js)
 const GH_USER = 'gbPagano';
-const GH_CACHE_KEY = 'pf_gh_v1';
+const GH_CACHE_KEY = 'pf_gh_v4';
 const GH_CACHE_TTL = 1000 * 60 * 60 * 6; // 6h
 
 // Convert flat day list (365 entries: {date,count,level}) into 53-col x 7-row grid.
 // First column may be partial; we left-pad with nulls so weekdays line up.
+// Returns cells with full {date, count, level} so we can render labels + tooltips.
 function toGridFromDays(days) {
   if (!days || !days.length) return null;
-  const first = new Date(days[0].date);
-  const startDow = first.getDay(); // 0..6 (Sun..Sat)
+  // Parse YYYY-MM-DD as LOCAL date (not UTC) so getDay() reflects the calendar day.
+  const [fy, fm, fd] = days[0].date.split('-').map(Number);
+  const first = new Date(fy, fm - 1, fd);
+  const startDow = first.getDay(); // 0..6 (Sun..Sat) — Sunday-first
   const cells = [...Array(startDow).fill(null), ...days];
   const cols = [];
   for (let i = 0; i < cells.length; i += 7) {
-    const col = cells.slice(i, i + 7).map(c => (c ? c.level : 0));
-    while (col.length < 7) col.push(0);
+    const col = cells.slice(i, i + 7);
+    while (col.length < 7) col.push(null);
     cols.push(col);
   }
   return cols;
+}
+
+// Derive month labels from a grid of {date,count,level} cells.
+// Returns [{label:'Jan', col:0}, {label:'Feb', col:4}, ...]
+function getMonthLabels(grid) {
+  if (!grid) return [];
+  const out = [];
+  let lastMonth = -1;
+  grid.forEach((col, ci) => {
+    const firstDay = col.find(c => c && typeof c === 'object' && c.date);
+    if (!firstDay) return;
+    const d = new Date(firstDay.date);
+    const m = d.getMonth();
+    if (m !== lastMonth) {
+      out.push({ label: d.toLocaleDateString('en-US', { month: 'short' }), col: ci });
+      lastMonth = m;
+    }
+  });
+  return out;
 }
 
 async function fetchGithubLive() {
@@ -354,7 +376,15 @@ async function fetchGithubLive() {
   const events = eventsRes.ok ? await eventsRes.json() : [];
 
   const stars = Array.isArray(repos) ? repos.reduce((a, r) => a + (r.stargazers_count || 0), 0) : 0;
-  const grid = contrib && contrib.contributions ? toGridFromDays(contrib.contributions) : null;
+  // Trim trailing days that haven't happened yet (some APIs over-fill the current week).
+  let days = (contrib && contrib.contributions) ? contrib.contributions : null;
+  if (days && days.length) {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    const todayStr = today.toISOString().slice(0, 10);
+    days = days.filter(d => d.date <= todayStr);
+  }
+  const grid = days ? toGridFromDays(days) : null;
   const total = contrib && contrib.total ? (contrib.total.lastYear || 0) : 0;
 
   // Count distinct external repos with contribution-type events (last ~90d, max 300 events).
@@ -406,7 +436,10 @@ function GithubStats({ lang, data }) {
   const commits = live?.commits_year ?? data.stats.commits_year;
   const followers = live?.followers;
   const contributedTo = live?.contributed_to_90d;
-  const grid = live?.grid ?? data.contributions;
+  // Live grid is already 53x7 cells; fallback is a flat day list.
+  const grid = live?.grid ?? toGridFromDays(data.contributions);
+  const monthLabels = getMonthLabels(grid);
+  const dayLabels = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
 
   return (
     <section className="section" id="github">
@@ -418,34 +451,89 @@ function GithubStats({ lang, data }) {
         </Reveal>
         <Reveal delay={80}>
           <div className="gh-block">
-            {/* contributions heatmap - wider, centered */}
+            {/* Heatmap card */}
             <div className="contrib-card">
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16,flexWrap:'wrap',gap:12}}>
+              {/* In-card header: @user + total left, "view profile" button right */}
+              <div className="contrib-header-inline">
                 <div>
-                  <div style={{fontFamily:'var(--font-mono)',fontSize:12,color:'var(--fg-subtle)',letterSpacing:'0.08em',textTransform:'uppercase',display:'flex',alignItems:'center',gap:8}}>
+                  <div className="contrib-eyebrow">
                     <span>@{GH_USER}</span>
-                    {loading && <span style={{opacity:0.6,textTransform:'none',letterSpacing:0}}>· {isPT?'carregando…':'loading…'}</span>}
+                    {loading && <span className="contrib-loading">· {isPT?'carregando…':'loading…'}</span>}
                   </div>
-                  <div style={{fontFamily:'var(--font-mono)',fontSize:16,marginTop:4}}>{commits.toLocaleString()} {isPT?'contribuições no último ano':'contributions in the last year'}</div>
+                  <div className="contrib-total">
+                    {commits.toLocaleString()} {isPT?'contribuições no último ano':'contributions in the last year'}
+                  </div>
                 </div>
-                <a className="btn" href={`https://github.com/${GH_USER}`} target="_blank" rel="noreferrer" style={{padding:'8px 14px',fontSize:12}}><Icon name="github" size={14}/> {isPT?'ver perfil':'view profile'}</a>
+                <a className="btn" href={`https://github.com/${GH_USER}`} target="_blank" rel="noreferrer" style={{padding:'8px 14px',fontSize:12}}>
+                  <Icon name="github" size={14}/> {isPT?'ver perfil':'view profile'}
+                </a>
               </div>
-              <div className="contrib-grid">
-                {grid.map((col,ci)=>(
-                  <div className="contrib-col" key={ci}>
-                    {col.map((v,ri)=><div key={ri} className={`contrib-sq l${v}`} title={`${v} contrib`}/>)}
+
+              {grid && grid.length > 0 ? (
+                <>
+                  {/* Month labels row */}
+                  <div className="contrib-months">
+                    <div className="contrib-months-row">
+                      {grid.map((_, ci) => {
+                        const m = monthLabels.find(x => x.col === ci);
+                        return (
+                          <div className="contrib-months-cell" key={ci}>
+                            {m && <span>{m.label}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                ))}
-              </div>
-              <div className="contrib-legend">
-                <span>{isPT?'menos':'less'}</span>
-                <div className="contrib-sq"/>
-                <div className="contrib-sq l1"/>
-                <div className="contrib-sq l2"/>
-                <div className="contrib-sq l3"/>
-                <div className="contrib-sq l4"/>
-                <span>{isPT?'mais':'more'}</span>
-              </div>
+
+                  {/* Grid (no day labels) */}
+                  <div className="contrib-body">
+                    <div className="contrib-grid">
+                      {grid.map((col, ci) => (
+                        <div className="contrib-col" key={ci}>
+                          {col.map((cell, ri) => {
+                            const lv = cell ? cell.level : 0;
+                            const cnt = cell ? cell.count : 0;
+                            const date = cell ? cell.date : null;
+                            // Parse YYYY-MM-DD as local date (avoid UTC off-by-one in BR/negative tz)
+                            const localDate = date ? (() => {
+                              const [y,m,d] = date.split('-').map(Number);
+                              return new Date(y, m-1, d);
+                            })() : null;
+                            const title = cell
+                              ? `${cnt} ${cnt === 1 ? 'contribution' : 'contributions'} on ${localDate.toLocaleDateString(isPT?'pt-BR':'en-US',{month:'short',day:'numeric',year:'numeric'})}`
+                              : 'No data';
+                            return (
+                              <div
+                                key={ri}
+                                className={`contrib-sq l${lv}${cell ? '' : ' empty'}`}
+                                title={title}
+                                aria-label={title}
+                              />
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Footer: legend only */}
+                  <div className="contrib-foot">
+                    <div className="contrib-legend">
+                      <span>{isPT?'menos':'less'}</span>
+                      <div className="contrib-sq l0"/>
+                      <div className="contrib-sq l1"/>
+                      <div className="contrib-sq l2"/>
+                      <div className="contrib-sq l3"/>
+                      <div className="contrib-sq l4"/>
+                      <span>{isPT?'mais':'more'}</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="contrib-empty">
+                  <p>{isPT?'Dados de contribuição indisponíveis':'Contribution data not available'}</p>
+                </div>
+              )}
             </div>
 
             {/* stat cards - row below the heatmap */}
@@ -594,7 +682,7 @@ function Footer({ lang, accent, setAccent }) {
     <footer className="footer">
       <div className="page-wrap">
         <div className="footer-inner">
-          <div className="footer-meta">
+          <div className="footer-meta footer-built">
             <span className="footer-prompt">~</span>
             <span style={{color:'var(--fg-muted)'}}>{isPT?'feito com':'built with'}</span>
             <span style={{color:'var(--ctp-red)'}}>♥</span>

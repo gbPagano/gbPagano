@@ -98,6 +98,23 @@ function HeroTerminal({ lang, data, animations }) {
 
   const [rendered, done] = useTyping(lines, 22, 150, animations);
 
+  // Measure final height once (render all lines invisibly) so the terminal body
+  // doesn't grow while the typing animation runs.
+  const measureRef = useRef(null);
+  const [bodyMinH, setBodyMinH] = useState(null);
+  useEffect(() => {
+    if (!measureRef.current) return;
+    const measure = () => {
+      const h = measureRef.current?.getBoundingClientRect().height;
+      if (h && h > 0) setBodyMinH(Math.ceil(h));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(measureRef.current);
+    window.addEventListener('resize', measure);
+    return () => { ro.disconnect(); window.removeEventListener('resize', measure); };
+  }, [lines]);
+
   const renderLine = (l, i) => {
     if (!l) return null;
     if (l.prompt) {
@@ -133,7 +150,11 @@ function HeroTerminal({ lang, data, animations }) {
             <span className="term-dot r" /><span className="term-dot y" /><span className="term-dot g" />
             <span className="term-title">ghostty - zsh</span>
           </div>
-          <div className="term-body">
+          <div className="term-body" style={bodyMinH ? { minHeight: bodyMinH } : undefined}>
+            {/* invisible measurer: full content, sets the floor for body height */}
+            <div ref={measureRef} aria-hidden="true" className="term-body-measure">
+              {lines.map(renderLine)}
+            </div>
             {rendered.map(renderLine)}
           </div>
         </div>

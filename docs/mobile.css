@@ -1,0 +1,393 @@
+/* ============================================================
+   MOBILE OVERRIDES - layered on top of styles.css
+   Strategy: only override what breaks; keep desktop untouched.
+   Breakpoints: 820px (tablet), 600px (phone), 380px (small phone)
+   ============================================================ */
+
+/* ---- Smooth scroll + safer body wrapping ---- */
+html { scroll-behavior: smooth; }
+body { -webkit-text-size-adjust: 100%; }
+
+/* ============================================================
+   NAV: collapse section links into a hamburger drawer in <820px
+   ============================================================ */
+.nav-toggle {
+  display: none;
+  width: 40px; height: 40px;
+  margin-left: auto;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-1);
+  border: 1px solid var(--surface-2);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  color: var(--fg);
+  padding: 0;
+  transition: all var(--dur-fast);
+}
+.nav-toggle:hover { background: var(--surface-2); border-color: var(--accent); }
+.nav-toggle svg { display: block; }
+
+/* lang pill that lives outside the drawer (visible on mobile beside hamburger) */
+.nav-lang-pill { display: none; margin-left: auto; }
+
+@media (max-width: 820px) {
+  .topnav-inner {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+  .nav-toggle { display: inline-flex; margin-left: 0; }
+  /* show the external lang pill, hide the one inside the drawer */
+  .nav-lang-pill { display: inline-flex; }
+  .nav-lang-pill-desktop { display: none !important; }
+
+  /* Hide the inline nav links - the drawer takes over */
+  .nav-links {
+    position: fixed;
+    top: 60px;
+    left: 0; right: 0;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--surface-1);
+    padding: 16px;
+    margin-left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 220ms var(--ease, ease), opacity 220ms;
+    box-shadow: 0 12px 28px -12px rgba(0,0,0,0.5);
+  }
+  body.nav-open .nav-links {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .nav-links .nav-link {
+    padding: 12px 14px;
+    font-size: 14px;
+    border-radius: var(--r-sm);
+  }
+  .nav-links .lang-pill {
+    margin-left: 0;
+    margin-top: 8px;
+    align-self: flex-start;
+  }
+  .nav-links .btn {
+    margin-left: 0 !important;
+    margin-top: 4px;
+    align-self: flex-start;
+  }
+}
+
+/* ============================================================
+   PAGE WRAP: tighter side padding on phones
+   ============================================================ */
+@media (max-width: 600px) {
+  .page-wrap { padding: 0 16px; }
+  .topnav-inner { padding: 10px 16px; }
+}
+
+/* ============================================================
+   SECTIONS: less vertical air on phones
+   ============================================================ */
+@media (max-width: 600px) {
+  body[data-density="compact"] { --s-block: 32px; }
+  body:not([data-density]),
+  body[data-density="standard"] { --s-block: 48px; }
+  body[data-density="roomy"] { --s-block: 72px; }
+
+  .section-title { font-size: clamp(28px, 7vw, 40px); }
+  .section-sub { font-size: 15px; margin-bottom: 32px; }
+  .section-label { font-size: 11px; margin-bottom: 18px; }
+}
+
+/* ============================================================
+   HERO TERMINAL: reduce padding + font, prevent horizontal scroll
+   ============================================================ */
+@media (max-width: 600px) {
+  .hero-terminal { padding: 24px 0 16px; }
+  .hero-terminal .terminal { border-radius: var(--r-md); }
+  .term-titlebar { padding: 8px 12px; gap: 7px; }
+  .term-dot { width: 10px; height: 10px; }
+  .term-title { font-size: 11px; }
+  .term-body {
+    padding: 18px 14px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    height: 360px;
+    min-height: 360px;
+    max-height: 360px;
+    overflow-y: auto;
+    overflow-x: auto;
+  }
+  .term-prompt-block { word-break: break-word; }
+  .term-prompt-row { flex-wrap: wrap; }
+  .term-userhost { font-size: 12px; }
+  .term-shell-path { margin-left: 6px; }
+  .term-out { font-size: 12px; }
+
+  .hero-terminal .page-wrap > div:last-child {
+    gap: 8px !important;
+    margin-top: 20px !important;
+  }
+  .hero-terminal .btn {
+    flex: 1 1 calc(50% - 8px);
+    justify-content: center;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 380px) {
+  .term-body { padding: 14px 10px; font-size: 11.5px; }
+  .term-userhost, .term-out { font-size: 11.5px; }
+}
+
+/* ============================================================
+   HERO BIG: tame the giant type
+   ============================================================ */
+@media (max-width: 600px) {
+  .hero-big { padding: 32px 0 24px; }
+  .hero-big h1 {
+    font-size: clamp(48px, 14vw, 72px);
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+  }
+  .hero-big .blurb { font-size: 16px; }
+  .hero-big .tagline { font-size: 14px; }
+  .hero-big .cta-row { gap: 8px; margin-bottom: 32px; }
+  .hero-big .cta-row .btn { flex: 1 1 calc(50% - 8px); justify-content: center; }
+  .hero-big .meta-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 18px 0;
+  }
+  .hero-big .eyebrow-row {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: 12px;
+  }
+}
+
+/* ============================================================
+   HERO CODE: stack earlier and shrink the code card
+   ============================================================ */
+@media (max-width: 600px) {
+  .hero-code { padding: 28px 0 16px; gap: 24px; }
+  .hero-code .lhs h1 { font-size: clamp(34px, 9vw, 52px); }
+  .hero-code .lhs .blurb { font-size: 16px; }
+  .code-card pre {
+    padding: 14px 14px;
+    font-size: 12px;
+    line-height: 1.55;
+    overflow-x: auto;
+  }
+  .code-card-head { padding: 8px 12px; font-size: 11px; }
+}
+
+/* ============================================================
+   ABOUT
+   ============================================================ */
+@media (max-width: 600px) {
+  .about-grid { gap: 24px; }
+  .about-card { padding: 20px; }
+  .about-card p { font-size: 15px; line-height: 1.65; }
+  .about-meta .row {
+    font-size: 12px;
+    padding: 10px 0;
+    gap: 12px;
+  }
+  .about-meta .row .v {
+    text-align: right;
+    word-break: break-word;
+  }
+}
+
+/* ============================================================
+   EXPERIENCE / TIMELINE
+   ============================================================ */
+@media (max-width: 600px) {
+  .timeline { padding-left: 22px !important; }
+  .timeline-item { padding-bottom: 56px !important; }
+  .timeline-item::before {
+    left: -22px;
+    width: 13px; height: 13px;
+    top: 6px;
+  }
+  .timeline-item h3 { font-size: 18px; }
+  .timeline-item .period {
+    font-size: 11px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .timeline-item .period > span { margin-left: 0 !important; }
+  .timeline-item .company {
+    font-size: 13px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .timeline-item ul { padding-left: 16px; font-size: 14px; }
+  .timeline-item ul li { margin-bottom: 6px; line-height: 1.5; }
+  .timeline-item .stack { gap: 5px; }
+  .timeline-item .stack .chip { font-size: 11px; padding: 3px 8px; }
+}
+
+/* ============================================================
+   PROJECTS - grid: allow narrower cards; list: stack rows
+   ============================================================ */
+@media (max-width: 600px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .project-card { padding: 18px; }
+  .project-card h4 { font-size: 16.5px; }
+  .project-card .blurb { font-size: 14px; }
+  .project-card .head { gap: 10px; flex-wrap: wrap; }
+  .project-card .year { font-size: 11px; }
+
+  /* README list: collapse the 3-col grid into a stack */
+  .readme-list .readme-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 18px 0;
+  }
+  .readme-list .rname { font-size: 13px; }
+  .readme-list .rname-sub { margin-top: 2px; }
+  .readme-list .rbody h4 { font-size: 16px; }
+  .readme-list .rbody p { font-size: 14px; }
+  .readme-list .project-actions { justify-content: flex-start; }
+
+  /* Terminal projects: kill the dense 4-col grid */
+  #projects .term-card .body > div[style*="grid-template-columns"] {
+    display: flex !important;
+    flex-direction: column;
+    gap: 4px !important;
+    padding: 12px 0 !important;
+  }
+  #projects .term-card .body { padding: 14px 12px; font-size: 12px !important; }
+}
+
+/* ============================================================
+   SKILLS - already responsive, just tweak chips
+   ============================================================ */
+@media (max-width: 600px) {
+  .skill-group { padding: 18px; }
+  .stack-block { padding: 18px; }
+  .lang-row {
+    grid-template-columns: 70px 1fr 30px;
+    gap: 10px;
+  }
+}
+
+/* ============================================================
+   GITHUB STATS / HEATMAP
+   ============================================================ */
+@media (max-width: 600px) {
+  .contrib-card { padding: 14px 12px; }
+  .contrib-months { font-size: 9px; }
+  .contrib-grid { gap: 2px; }
+  .contrib-col { gap: 2px; }
+  .contrib-sq { max-height: 13px; border-radius: 1.5px; }
+  .contrib-legend { gap: 3px; }
+  .contrib-legend .contrib-sq { width: 9px; height: 9px; }
+  .contrib-legend span { font-size: 10px; margin: 0 2px; }
+  .contrib-foot { font-size: 10px; }
+  .contrib-header-title { font-size: 14px; }
+  .contrib-header-right { font-size: 12px; }
+
+  .gh-stats-row { gap: 10px; }
+  .stat-card { padding: 14px 16px; gap: 10px; }
+  .stat-card .stat-icon { width: 30px; height: 30px; }
+  .stat-card .val { font-size: 24px; }
+  .stat-card .lbl {
+    font-size: 10px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.3;
+  }
+}
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+@media (max-width: 600px) {
+  .contact-primary { padding: 22px; gap: 14px; }
+  .contact-primary .cp-email {
+    font-size: clamp(16px, 5.5vw, 22px);
+  }
+  .contact-primary .cp-actions { gap: 8px; }
+  .contact-primary .cp-actions .btn {
+    flex: 1 1 calc(50% - 8px);
+    justify-content: center;
+  }
+  .contact-primary .cp-meta {
+    gap: 6px;
+    font-size: 11.5px;
+  }
+  .contact-primary .cp-meta .sep { display: none; }
+  .contact-primary .cp-meta > span {
+    flex: 1 1 100%;
+  }
+  .contact-links .cl-list li a {
+    grid-template-columns: 24px 1fr auto;
+    padding: 10px 14px;
+    font-size: 12px;
+    gap: 8px;
+  }
+  .contact-links .cl-list li a .cl-val { display: none; }
+  .contact-links .cl-arrow { opacity: 0.5 !important; }
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+@media (max-width: 600px) {
+  .footer { padding: 22px 0 28px; margin-top: 48px; }
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 11.5px;
+  }
+  .footer-meta { gap: 6px; }
+}
+
+/* ============================================================
+   THEME POPUP: anchor inside viewport
+   ============================================================ */
+@media (max-width: 600px) {
+  .theme-pop-menu {
+    right: 0;
+    left: auto;
+    min-width: 200px;
+    max-width: calc(100vw - 24px);
+    transform-origin: bottom right;
+  }
+  .theme-pop-arrow { right: 18px; left: auto; }
+}
+
+/* ============================================================
+   IDE LAYOUT: already collapses at 900px, ensure inner padding
+   ============================================================ */
+@media (max-width: 600px) {
+  body[data-layout="ide"] .ide-main { padding: 16px; }
+}
+
+/* ============================================================
+   GENERAL: prevent any rogue overflow
+   ============================================================ */
+@media (max-width: 600px) {
+  .term-card .body,
+  .code-card pre { -webkit-overflow-scrolling: touch; }
+
+  /* Make sure inline buttons in term-style headers don't blow out */
+  .cl-header { padding: 8px 12px; gap: 6px; }
+  .cl-header .cl-title { font-size: 11px; margin-left: 6px; }
+}

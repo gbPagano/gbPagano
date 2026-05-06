@@ -1,7 +1,7 @@
 /* Portfolio styles - layered on top of colors_and_type.css */
 
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; overflow-x: clip; }
 body {
   background: var(--bg);
   color: var(--fg);
@@ -238,11 +238,22 @@ body:not([data-density]) { --s-block: 72px; }
   color: var(--fg-subtle);
 }
 .term-body {
+  position: relative;
   padding: 32px clamp(20px, 4vw, 44px);
   font-family: var(--font-mono);
   font-size: 15px;
   line-height: 1.7;
   min-height: 340px;
+}
+.term-body-measure {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+  left: 0;
+  right: 0;
+  top: 0;
+  padding: inherit;
+  /* height auto - measures actual content height, doesn't inherit parent's min-height */
 }
 .term-line { display: block; }
 .term-prompt-block {
@@ -861,44 +872,138 @@ body[data-card="paper"] .project-card:hover {
   border-color: var(--accent);
 }
 
-/* ============ CONTRIBUTIONS HEATMAP ============ */
+/* ============ CONTRIBUTIONS HEATMAP (CheckMyGit / GitHub-style) ============ */
+.contrib-header-inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.contrib-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg-subtle);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.contrib-loading {
+  opacity: 0.6;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.contrib-total {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  margin-top: 4px;
+  color: var(--fg);
+}
+
 .contrib-card {
   background: var(--bg-secondary);
   border: 1px solid var(--surface-1);
   border-radius: var(--r-lg);
-  padding: 24px;
+  padding: 16px 18px;
+}
+
+/* Month labels row */
+.contrib-months {
+  display: flex;
+  margin-bottom: 6px;
+  font-size: 10px;
+  color: var(--fg-subtle);
+  font-family: var(--font-mono);
+}
+.contrib-months-row {
+  display: flex;
+  flex: 1;
+  gap: 3px;
+  position: relative;
+  height: 14px;
+}
+.contrib-months-cell {
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
+}
+.contrib-months-cell span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  white-space: nowrap;
+}
+
+/* Body: grid only */
+.contrib-body {
+  display: flex;
 }
 .contrib-grid {
   display: flex;
   gap: 3px;
-  padding-bottom: 6px;
-  width: 100%;
-  justify-content: space-between;
+  flex: 1 1 0;
+  min-width: 0;
 }
-.contrib-col { display: flex; flex-direction: column; gap: 3px; flex: 1 1 0; min-width: 0; }
+.contrib-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 0;
+  min-width: 0;
+}
 .contrib-sq {
   width: 100%;
   aspect-ratio: 1 / 1;
-  height: auto;
   max-height: 16px;
   border-radius: 2px;
   background: var(--surface-1);
-  transition: background var(--dur-fast);
+  transition: opacity var(--dur-fast);
 }
-.contrib-legend .contrib-sq { width: 11px; height: 11px; aspect-ratio: auto; max-height: none; }
+.contrib-sq:hover { opacity: 0.75; }
+.contrib-sq.empty { opacity: 0; pointer-events: none; }
+.contrib-sq.l0 { background: var(--surface-1); }
 .contrib-sq.l1 { background: color-mix(in srgb, var(--accent) 25%, var(--surface-1)); }
 .contrib-sq.l2 { background: color-mix(in srgb, var(--accent) 50%, var(--surface-1)); }
 .contrib-sq.l3 { background: color-mix(in srgb, var(--accent) 75%, var(--surface-1)); }
-.contrib-sq.l4 { background: var(--accent); box-shadow: 0 0 4px color-mix(in srgb, var(--accent) 50%, transparent); }
+.contrib-sq.l4 { background: var(--accent); }
+
+/* Footer: meta left, legend right */
+.contrib-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--fg-subtle);
+  font-family: var(--font-mono);
+  flex-wrap: wrap;
+  gap: 8px;
+}
 .contrib-legend {
   display: flex;
   align-items: center;
-  gap: 6px;
-  justify-content: flex-end;
-  margin-top: 12px;
-  font-family: var(--font-mono);
+  gap: 4px;
+}
+.contrib-legend .contrib-sq {
+  width: 11px;
+  height: 11px;
+  aspect-ratio: auto;
+  max-height: none;
+  flex-shrink: 0;
+}
+.contrib-legend span {
   font-size: 11px;
   color: var(--fg-subtle);
+  margin: 0 4px;
+}
+.contrib-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--fg-subtle);
+  font-size: 13px;
 }
 
 /* ============ STAT CARDS ============ */
@@ -1054,6 +1159,10 @@ body[data-card="paper"] .project-card:hover {
 .footer a { color: var(--accent); text-decoration: none; transition: opacity var(--dur-fast); }
 .footer a:visited { color: var(--accent); }
 .footer a:hover { opacity: 0.8; }
+@media (max-width: 700px) {
+  .footer-built { display: none; }
+  .footer-inner { justify-content: center; }
+}
 
 /* - theme chip + popup menu - */
 .theme-pop { position: relative; display: inline-block; }
@@ -1090,7 +1199,7 @@ body[data-card="paper"] .project-card:hover {
   border-radius: 50%;
   box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent);
 }
-.theme-chip-label { line-height: 1; letter-spacing: 0.01em; }
+.theme-chip-label { line-height: 1; letter-spacing: 0.01em; display: none; }
 .theme-chip-caret {
   color: var(--fg-subtle);
   transition: transform var(--dur-med);
@@ -1173,7 +1282,14 @@ body[data-card="paper"] .project-card:hover {
 }
 
 @media (max-width: 600px) {
-  .theme-pop-menu { right: -8px; min-width: 200px; }
+  .theme-pop-menu {
+    right: 0;
+    left: auto;
+    min-width: 200px;
+    max-width: calc(100vw - 24px);
+    transform-origin: bottom right;
+  }
+  .theme-pop-arrow { right: 18px; left: auto; }
   .theme-pop-grid { grid-template-columns: repeat(7, 1fr); }
 }
 
