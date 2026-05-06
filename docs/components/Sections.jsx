@@ -49,7 +49,7 @@ function About({ lang, data }) {
                 <div className="row"><span className="k">{isPT?'localização':'location'}</span><span className="v">Uberlândia, BR</span></div>
                 <div className="row"><span className="k">{isPT?'empresa':'company'}</span><span className="v">IHM Stefanini</span></div>
                 <div className="row"><span className="k">{isPT?'universidade':'university'}</span><span className="v">UFU</span></div>
-                <div className="row"><span className="k">{isPT?'curso':'degree'}</span><span className="v">Electrical Engineering</span></div>
+                <div className="row"><span className="k">{isPT?'curso':'degree'}</span><span className="v">{isPT?'Engenharia Elétrica':'Electrical Engineering'}</span></div>
                 <div className="row"><span className="k">{isPT?'idiomas':'languages'}</span><span className="v">PT · EN</span></div>
                 <div className="row"><span className="k">stack</span><span className="v">Rust · Python · Linux</span></div>
               </div>
