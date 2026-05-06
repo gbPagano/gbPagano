@@ -270,6 +270,6 @@ window.portfolioData = {
     repos: 42,
     stars: 87,
     commits_year: 1284,
-    years_exp: 3.5,
+    years_exp: 4,
   },
 };

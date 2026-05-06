@@ -194,7 +194,7 @@ function HeroBig({ lang, data }) {
           <div><div className="meta-label">{isPT?'Baseado em':'Based in'}</div><div className="meta-val">Uberlândia, BR</div></div>
           <div><div className="meta-label">{isPT?'Atualmente':'Currently'}</div><div className="meta-val">IHM Stefanini</div></div>
           <div><div className="meta-label">{isPT?'Foco':'Focus'}</div><div className="meta-val">Rust · WASM · K8s</div></div>
-          <div><div className="meta-label">{isPT?'Experiência':'Experience'}</div><div className="meta-val">3.5 {isPT?'anos':'years'}</div></div>
+          <div><div className="meta-label">{isPT?'Experiência':'Experience'}</div><div className="meta-val">4 {isPT?'anos':'years'}</div></div>
         </div>
       </div>
     </section>
