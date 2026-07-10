@@ -73,7 +73,7 @@ const Icon = ({ name, size = 18 }) => {
     check: <polyline points="20 6 9 17 4 12"/>,
     users: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
     letterboxd: <><circle cx="6" cy="12" r="3.2"/><circle cx="12" cy="12" r="3.2"/><circle cx="18" cy="12" r="3.2"/></>,
-    lastfm: <><path d="M3 8c1.5-3 4.5-4 7-2.5 1.6 1 2.3 2.6 3 4.5.7 1.9 1.5 3.5 3 4.5 2 1.3 4.5.5 5-1.5"/><path d="M18 15c-.6.3-1.4.5-2 .3"/></>,
+    music: <><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></>,
   };
   return <svg {...common}>{paths[name] || paths.link}</svg>;
 };

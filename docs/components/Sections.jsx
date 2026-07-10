@@ -589,7 +589,7 @@ function Contact({ lang, data }) {
     { cmd: 'linkedin',   value: 'in/gbpagano',                url: 'https://linkedin.com/in/gbpagano',    icon: 'linkedin' },
     { cmd: 'instagram',  value: '@gbpagano',                  url: 'https://instagram.com/gbpagano',      icon: 'instagram' },
     { cmd: 'letterboxd', value: 'letterboxd.com/gbPagano',    url: 'https://letterboxd.com/gbPagano/',    icon: 'letterboxd' },
-    { cmd: 'lastfm',     value: 'last.fm/user/gbPagano',      url: 'https://www.last.fm/pt/user/gbPagano', icon: 'lastfm' },
+    { cmd: 'music',      value: 'music.server.gbpagano.dev',  url: 'https://music.server.gbpagano.dev',    icon: 'music' },
     { cmd: 'phone',      value: data.phone,                   url: `tel:+5531994001739`,                  icon: 'phone' },
   ];
   return (
